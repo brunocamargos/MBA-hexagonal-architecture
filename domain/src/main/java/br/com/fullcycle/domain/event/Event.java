@@ -73,6 +73,10 @@ public class Event {
     }
 
     public EventTicket reserveTicket(final CustomerId aCustomerId) {
+        if (EventStatus.CANCELLED.equals(status())) {
+            throw new ValidationException("Event is cancelled");
+        }
+
         this.allTickets().stream()
                 .filter(it -> Objects.equals(it.customerId(), aCustomerId))
                 .findFirst()
