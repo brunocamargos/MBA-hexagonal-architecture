@@ -109,4 +109,62 @@ class EventControllerTest {
         var actualEvent = eventRepository.eventOfId(EventId.with(eventId)).get();
         Assertions.assertEquals(1, actualEvent.allTickets().size());
     }
+
+    @Test
+    @DisplayName("Deve cancelar um evento")
+    public void testCancelEvent() throws Exception {
+
+        var event = new NewEventDTO("Disney on Ice", "2021-01-01", 100, disney.partnerId().value());
+
+        final var createResult = this.mvc.perform(
+                        MockMvcRequestBuilders.post("/events")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(event))
+                )
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").isString())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        var eventId = mapper.readValue(createResult, CreateEventUseCase.Output.class).id();
+
+        this.mvc.perform(
+                        MockMvcRequestBuilders.post("/events/{id}/cancel", eventId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.eventId").value(eventId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("CANCELLED"));
+    }
+
+    @Test
+    @DisplayName("Não deve cancelar um evento já cancelado")
+    public void testCancelEventAlreadyCancelled() throws Exception {
+
+        var event = new NewEventDTO("Disney on Ice", "2021-01-01", 100, disney.partnerId().value());
+
+        final var createResult = this.mvc.perform(
+                        MockMvcRequestBuilders.post("/events")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(event))
+                )
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").isString())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        var eventId = mapper.readValue(createResult, CreateEventUseCase.Output.class).id();
+
+        this.mvc.perform(
+                        MockMvcRequestBuilders.post("/events/{id}/cancel", eventId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("CANCELLED"));
+
+        this.mvc.perform(
+                        MockMvcRequestBuilders.post("/events/{id}/cancel", eventId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().isUnprocessableEntity())
+                .andExpect(MockMvcResultMatchers.content().string("Event already cancelled"));
+    }
 }

@@ -1,5 +1,6 @@
 package br.com.fullcycle.infrastructure.rest;
 
+import br.com.fullcycle.application.event.CancelEventUseCase;
 import br.com.fullcycle.application.event.CreateEventUseCase;
 import br.com.fullcycle.application.event.SubscribeCustomerToEventUseCase;
 import br.com.fullcycle.domain.exceptions.ValidationException;
@@ -19,13 +20,16 @@ public class EventController {
 
     private final CreateEventUseCase createEventUseCase;
     private final SubscribeCustomerToEventUseCase subscribeCustomerToEventUseCase;
+    private final CancelEventUseCase cancelEventUseCase;
 
     public EventController(
             final CreateEventUseCase createEventUseCase,
-            final SubscribeCustomerToEventUseCase subscribeCustomerToEventUseCase
+            final SubscribeCustomerToEventUseCase subscribeCustomerToEventUseCase,
+            final CancelEventUseCase cancelEventUseCase
     ) {
         this.createEventUseCase = Objects.requireNonNull(createEventUseCase);
         this.subscribeCustomerToEventUseCase = Objects.requireNonNull(subscribeCustomerToEventUseCase);
+        this.cancelEventUseCase = Objects.requireNonNull(cancelEventUseCase);
     }
 
     @PostMapping
@@ -47,6 +51,16 @@ public class EventController {
             final var output =
                     subscribeCustomerToEventUseCase.execute(new SubscribeCustomerToEventUseCase.Input(dto.customerId(), id));
 
+            return ResponseEntity.ok(output);
+        } catch (ValidationException ex) {
+            return ResponseEntity.unprocessableEntity().body(ex.getMessage());
+        }
+    }
+
+    @PostMapping(value = "/{id}/cancel")
+    public ResponseEntity<?> cancel(@PathVariable String id) {
+        try {
+            final var output = cancelEventUseCase.execute(new CancelEventUseCase.Input(id));
             return ResponseEntity.ok(output);
         } catch (ValidationException ex) {
             return ResponseEntity.unprocessableEntity().body(ex.getMessage());
