@@ -31,7 +31,7 @@ public class EventDatabaseRepository implements EventRepository {
             final ObjectMapper mapper
     ) {
         this.eventJpaRepository = Objects.requireNonNull(EventJpaRepository);
-        this.outboxJpaRepository = outboxJpaRepository;
+        this.outboxJpaRepository = Objects.requireNonNull(outboxJpaRepository);
         this.mapper = mapper;
     }
 

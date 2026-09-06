@@ -2,6 +2,7 @@ package br.com.fullcycle.domain.event.ticket;
 
 import br.com.fullcycle.domain.customer.Customer;
 import br.com.fullcycle.domain.event.Event;
+import br.com.fullcycle.domain.exceptions.ValidationException;
 import br.com.fullcycle.domain.partner.Partner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -38,5 +39,53 @@ public class TicketTest {
         Assertions.assertEquals(expectedEventId, actualTicket.eventId());
         Assertions.assertEquals(expectedCustomerId, actualTicket.customerId());
         Assertions.assertEquals(expectedTicketStatus, actualTicket.status());
+    }
+
+    @Test
+    @DisplayName("Deve cancelar um ticket")
+    public void testCancelTicket() throws Exception {
+        // given
+        final var aPartner =
+                Partner.newPartner("John Doe", "41.536.538/0001-00", "john.doe@gmail.com");
+
+        final var aCustomer =
+                Customer.newCustomer("John Doe", "123.456.789-01", "john.doe@gmail.com");
+
+        final var anEvent =
+                Event.newEvent("Disney on Ice", "2021-01-01", 10, aPartner);
+
+        final var actualTicket = Ticket.newTicket(aCustomer.customerId(), anEvent.eventId());
+
+        Assertions.assertEquals(TicketStatus.PENDING, actualTicket.status());
+
+        // when
+        actualTicket.cancel();
+
+        // then
+        Assertions.assertEquals(TicketStatus.CANCELLED, actualTicket.status());
+    }
+
+    @Test
+    @DisplayName("Deve ser idempotente ao cancelar um ticket já cancelado")
+    public void testCancelTicketAlreadyCancelled() throws Exception {
+        // given
+        final var aPartner =
+                Partner.newPartner("John Doe", "41.536.538/0001-00", "john.doe@gmail.com");
+
+        final var aCustomer =
+                Customer.newCustomer("John Doe", "123.456.789-01", "john.doe@gmail.com");
+
+        final var anEvent =
+                Event.newEvent("Disney on Ice", "2021-01-01", 10, aPartner);
+
+        final var actualTicket = Ticket.newTicket(aCustomer.customerId(), anEvent.eventId());
+
+        actualTicket.cancel();
+
+        // when
+        Assertions.assertDoesNotThrow(() -> actualTicket.cancel());
+
+        // then
+        Assertions.assertEquals(TicketStatus.CANCELLED, actualTicket.status());
     }
 }

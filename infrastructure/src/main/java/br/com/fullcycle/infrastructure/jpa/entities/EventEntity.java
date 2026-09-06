@@ -1,6 +1,7 @@
 package br.com.fullcycle.infrastructure.jpa.entities;
 
 import br.com.fullcycle.domain.event.Event;
+import br.com.fullcycle.domain.event.EventStatus;
 import br.com.fullcycle.domain.event.EventTicket;
 import jakarta.persistence.*;
 
@@ -25,6 +26,9 @@ public class EventEntity {
 
     private int totalSpots;
 
+    @Enumerated(EnumType.STRING)
+    private EventStatus status;
+
     private UUID partnerId;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "event")
@@ -34,12 +38,13 @@ public class EventEntity {
         this.tickets = new HashSet<>();
     }
 
-    public EventEntity(UUID id, String name, LocalDate date, int totalSpots, UUID partnerId) {
+    public EventEntity(UUID id, String name, LocalDate date, int totalSpots, EventStatus status, UUID partnerId) {
         this();
         this.id = id;
         this.name = name;
         this.date = date;
         this.totalSpots = totalSpots;
+        this.status = status;
         this.partnerId = partnerId;
     }
 
@@ -49,6 +54,7 @@ public class EventEntity {
                 event.name().value(),
                 event.date(),
                 event.totalSpots(),
+                event.status(),
                 UUID.fromString(event.partnerId().value())
         );
 
@@ -63,6 +69,7 @@ public class EventEntity {
                 this.name(),
                 this.date().format(DateTimeFormatter.ISO_LOCAL_DATE),
                 this.totalSpots(),
+                this.status(),
                 this.partnerId().toString(),
                 this.tickets().stream()
                         .map(EventTicketEntity::toEventTicket)
@@ -104,6 +111,14 @@ public class EventEntity {
 
     public void setTotalSpots(int totalSpots) {
         this.totalSpots = totalSpots;
+    }
+
+    public EventStatus status() {
+        return status;
+    }
+
+    public void setStatus(EventStatus status) {
+        this.status = status;
     }
 
     public UUID partnerId() {
