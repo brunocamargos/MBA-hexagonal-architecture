@@ -56,7 +56,7 @@ public class Event {
     }
 
     public static Event newEvent(final String name, final String date, final Integer totalSpots, final Partner partner) {
-        return new Event(EventId.unique(), name, date, totalSpots, EventStatus.SCHEDULED, partner.partnerId(), null);
+        return new Event(EventId.unique(), name, date, totalSpots, EventStatus.ACTIVE, partner.partnerId(), null);
     }
 
     public static Event restore(
@@ -103,6 +103,7 @@ public class Event {
         }
 
         this.status = EventStatus.CANCELLED;
+        this.domainEvents.add(new EventCancelled(eventId()));
     }
 
     public EventId eventId() {

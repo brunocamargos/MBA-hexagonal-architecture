@@ -1,6 +1,7 @@
 package br.com.fullcycle.infrastructure.configurations;
 
 import br.com.fullcycle.application.customer.CreateCustomerUseCase;
+import br.com.fullcycle.application.ticket.CancelEventTicketsUseCase;
 import br.com.fullcycle.application.event.CancelEventUseCase;
 import br.com.fullcycle.application.customer.GetCustomerByIdUseCase;
 import br.com.fullcycle.application.event.CreateEventUseCase;
@@ -41,6 +42,11 @@ public class UseCaseConfig {
     @Bean
     public CreateCustomerUseCase createCustomerUseCase() {
         return new CreateCustomerUseCase(customerRepository);
+    }
+
+    @Bean
+    public CancelEventTicketsUseCase cancelEventTicketsUseCase() {
+        return new CancelEventTicketsUseCase(ticketRepository);
     }
 
     @Bean

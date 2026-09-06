@@ -18,7 +18,7 @@ class GetEventByIdUseCaseTest {
         final var expectedName = "Disney on Ice";
         final var expectedDate = "2021-01-01";
         final var expectedTotalSpots = 10;
-        final var expectedStatus = "SCHEDULED";
+        final var expectedStatus = "ACTIVE";
 
         final var aPartner = Partner.newPartner("John Doe", "41.536.538/0001-00", "john.doe@gmail.com");
         final var anEvent = Event.newEvent(expectedName, expectedDate, expectedTotalSpots, aPartner);

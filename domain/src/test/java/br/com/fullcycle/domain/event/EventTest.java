@@ -211,18 +211,26 @@ public class EventTest {
     @DisplayName("Deve cancelar um evento")
     public void testCancelEvent() throws Exception {
         // given
+        final var expectedDomainEvent = "event.cancelled";
+
         final var aPartner =
                 Partner.newPartner("John Doe", "41.536.538/0001-00", "john.doe@gmail.com");
 
         final var actualEvent = Event.newEvent("Disney on Ice", "2021-01-01", 10, aPartner);
 
-        Assertions.assertEquals(EventStatus.SCHEDULED, actualEvent.status());
+        Assertions.assertEquals(EventStatus.ACTIVE, actualEvent.status());
 
         // when
         actualEvent.cancel();
 
         // then
         Assertions.assertEquals(EventStatus.CANCELLED, actualEvent.status());
+
+        Assertions.assertEquals(1, actualEvent.allDomainEvents().size());
+
+        final var actualDomainEvent = (EventCancelled) actualEvent.allDomainEvents().iterator().next();
+        Assertions.assertEquals(expectedDomainEvent, actualDomainEvent.type());
+        Assertions.assertEquals(actualEvent.eventId().value(), actualDomainEvent.eventId());
     }
 
     @Test

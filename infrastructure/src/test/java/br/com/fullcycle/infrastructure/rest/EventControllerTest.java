@@ -134,7 +134,7 @@ class EventControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.eventId").value(eventId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(eventId))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("CANCELLED"));
     }
 
@@ -196,7 +196,7 @@ class EventControllerTest {
         Assertions.assertEquals("Disney on Ice", actualResponse.name());
         Assertions.assertEquals("2021-01-01", actualResponse.date());
         Assertions.assertEquals(100, actualResponse.totalSpots());
-        Assertions.assertEquals("SCHEDULED", actualResponse.status());
+        Assertions.assertEquals("ACTIVE", actualResponse.status());
     }
 
     @Test
@@ -213,7 +213,7 @@ class EventControllerTest {
                 .andReturn().getResponse().getContentAsByteArray();
 
         var eventId = mapper.readValue(createResult, CreateEventUseCase.Output.class).id();
-        var expectedStatus = "SCHEDULED";
+        var expectedStatus = "ACTIVE";
 
         final var result = this.mvc.perform(
                         MockMvcRequestBuilders.get("/events/{id}", eventId)
